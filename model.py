@@ -1,3 +1,6 @@
+import io
+import pickle
+
 import numpy as np
 import numpy.typing as npt
 from sklearn.feature_extraction.text import CountVectorizer
@@ -23,17 +26,22 @@ class ProductMatchingModel:
     def __init__(self,
                  reference_classifier: ScikitClassifier,
                  vectorizer: CountVectorizer,
-                 threshold: float = 0.1,
                  class2id: [str] = None):
-
-        self.threshold = threshold
         self.vectorizer = vectorizer
         self.class2id = class2id
         self.reference_classifier = reference_classifier
 
+    def dump(self, path: str):
+        with open(path, 'w') as storage_file:
+            pickle.dump(self, storage_file)
+
+    @staticmethod
+    def load(path: str):
+        with open(path, 'r') as storage_file:
+            return pickle.load(storage_file)
+
     def fit(self, all_products: [Product]):
         all_products = deepcopy(all_products)
-        # all_products = [Product(**p) for p in all_products] most likely to happen in server code
         refs, prods = preprocess.separate_references(all_products)
         refs.append(Product(product_id="null",
                             name="null",
@@ -59,9 +67,6 @@ class ProductMatchingModel:
 
         corpus = preprocess.products2corpus(products)
         x = self.vectorizer.transform(corpus).toarray()
-
-        # d = self.reference_classifier.decision_function(x)  # for ridge classifier
-        # self.reference_classifier.classes_[np.argmax(d, axis=-1)]
         y = self.reference_classifier.predict(x)
 
         y_ids = [self.class2id[c] for c in y]
