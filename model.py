@@ -1,14 +1,11 @@
-from copy import deepcopy
-from typing import Protocol
-
-import numpy
 import numpy as np
 import numpy.typing as npt
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 
-import preprocess
 from product import Product
+import preprocess
+from typing import Protocol
 
 
 class ScikitClassifier(Protocol):
@@ -65,6 +62,16 @@ class ProductMatchingModel:
 
     def _fit_reference_classifier(self, refs, all_products):
         all_products = deepcopy(all_products)
+        # all_products = [Product(**p) for p in all_products] most likely to happen in server code
+        refs, prods = preprocess.separate_references(all_products)
+        refs.append(Product(product_id="null",
+                            name="null",
+                            props=[],
+                            is_reference=True,
+                            reference_id=""))
+        for p in prods:
+            if p.reference_id is None:
+                p.reference_id = "null"
 
         self.class2id = [r.product_id for r in refs]
 
@@ -87,7 +94,7 @@ class ProductMatchingModel:
         not_in_first_half = self.unknown_classifier_1.predict(x)
         not_in_second_half = self.unknown_classifier_2.predict(x)
 
-        unknowns = numpy.multiply(not_in_first_half, not_in_second_half)
+        unknowns = np.multiply(not_in_first_half, not_in_second_half)
 
         known_indices = np.nonzero(unknowns == 0)[0]
         known_x = x[known_indices]
