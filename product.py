@@ -3,8 +3,8 @@ class Product:
         self.product_id = product_id
         self.name = name
         self.props = props
-        self.is_reference = is_reference
         self.reference_id = reference_id
+        self.is_reference = is_reference
 
     def __str__(self):
         return f"{'Reference' if self.is_reference else f'Referrer of {self.reference_id}'} {self.name} ({self.product_id}): \n {self.props}"

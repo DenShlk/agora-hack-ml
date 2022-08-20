@@ -32,5 +32,5 @@ def build_reference_target(references: List[Product], products: List[Product]) -
 
 def build_unknowns_target(products) -> npt.NDArray[int]:
     return np.array(list(
-        map(lambda p: 1 if p.reference_id is None else 0, products)
+        map(lambda p: 1 if p.reference_id is None and not p.is_reference else 0, products)
     ))
