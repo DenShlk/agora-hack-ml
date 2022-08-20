@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 import numpy.typing as npt
 from sklearn.feature_extraction.text import CountVectorizer
@@ -47,7 +49,7 @@ class ProductMatchingModel:
 
         corpus = preprocess.products2corpus(all_prods)
         x = self.vectorizer.transform(corpus).toarray()
-        y = preprocess.build_unknowns_target(all_prods)
+        y = preprocess.build_unknowns_target(all_prods, refs_out)
 
         predictor.fit(x, y)
 
@@ -62,16 +64,6 @@ class ProductMatchingModel:
 
     def _fit_reference_classifier(self, refs, all_products):
         all_products = deepcopy(all_products)
-        # all_products = [Product(**p) for p in all_products] most likely to happen in server code
-        refs, prods = preprocess.separate_references(all_products)
-        refs.append(Product(product_id="null",
-                            name="null",
-                            props=[],
-                            is_reference=True,
-                            reference_id=""))
-        for p in prods:
-            if p.reference_id is None:
-                p.reference_id = "null"
 
         self.class2id = [r.product_id for r in refs]
 

@@ -70,3 +70,4 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+/BaseSVDD.py

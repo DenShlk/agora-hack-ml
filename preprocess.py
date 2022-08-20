@@ -23,14 +23,20 @@ def build_reference_target(references: List[Product], products: List[Product]) -
     ref_id2ind = {
         ref.product_id: i for i, ref in enumerate(references)
     }
-    ref_id2ind[None] = -1
 
     return np.array([
         ref_id2ind[p.product_id if p.is_reference else p.reference_id] for p in products
     ])
 
 
-def build_unknowns_target(products) -> npt.NDArray[int]:
-    return np.array(list(
-        map(lambda p: 1 if p.reference_id is None and not p.is_reference else 0, products)
-    ))
+def build_unknowns_target(products: List[Product], outlier_refs: List[Product]) -> npt.NDArray[int]:
+    outlier_ref_ids = set(map(lambda p: p.product_id, outlier_refs))
+    result = [0] * len(products)
+
+    for i, p in enumerate(products):
+        if p.is_reference:
+            if p.product_id in outlier_ref_ids:
+                result[i] = 1
+        elif p.reference_id is None:
+            result[i] = 1
+    return np.array(list(result))
