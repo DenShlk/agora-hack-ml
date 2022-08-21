@@ -33,6 +33,7 @@ class ProductMatchingModel:
                  reference_vectorizer: CountVectorizer = CountVectorizer(stop_words=STOP_WORDS),
                  unknown_vectorizer: CountVectorizer = CountVectorizer(stop_words=STOP_WORDS, ngram_range=(4, 4))
                  ):
+        self.threshold = 0
 
         self.reference_classifier = reference_classifier
         self.unknown_classifier_1 = unknown_classifier_1
@@ -58,6 +59,9 @@ class ProductMatchingModel:
         y = preprocess.build_unknowns_target(all_prods, refs_out)
 
         predictor.fit(x, y)
+
+    def set_threshold(self, val):
+        self.threshold = val
 
     def fit(self, all_products: [Product]):
         refs, prods = preprocess.separate_references(all_products)
@@ -105,9 +109,27 @@ class ProductMatchingModel:
         if known_x.size:
             y = self.reference_classifier.predict(known_x)
             y_ids = [self.class2id[c] for c in y]
-
             for idx, predicted_id in zip(known_indices, y_ids):
                 result[idx] = predicted_id
+
+        # result = [None] * len(products)
+
+        # if known_x.size:
+        #     y = self.reference_classifier.decision_function(known_x)
+        #     results = []
+        #     for res in y:
+        #         res = np.exp(res) / np.sum(np.exp(res))
+        #         c = res.argmax()
+        #         m = res.mean()
+        #         if m == 0:
+        #             m += 0.01
+        #         print('threshold:', self.threshold)
+        #         if res[c] / m < self.threshold:
+        #             results.append(None)
+        #         else:
+        #             results.append(self.class2id[c])
+        #     for idx, predicted_id in zip(known_indices, results):
+        #         result[idx] = predicted_id
 
         return result
 
