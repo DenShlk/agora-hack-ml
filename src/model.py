@@ -30,12 +30,15 @@ class ProductMatchingModel:
                  reference_classifier: ScikitClassifier = RidgeClassifier(alpha=0.4),
                  unknown_classifier_1: ScikitClassifier = RidgeClassifier(alpha=0.1),
                  unknown_classifier_2: ScikitClassifier = RidgeClassifier(alpha=0.1),
-                 vectorizer: CountVectorizer = TfidfVectorizer(stop_words=STOP_WORDS)):
+                 reference_vectorizer: CountVectorizer = CountVectorizer(stop_words=STOP_WORDS),
+                 unknown_vectorizer: CountVectorizer = CountVectorizer(stop_words=STOP_WORDS, ngram_range=(4, 4))
+                 ):
 
+        self.reference_classifier = reference_classifier
         self.unknown_classifier_1 = unknown_classifier_1
         self.unknown_classifier_2 = unknown_classifier_2
-        self.vectorizer = vectorizer
-        self.reference_classifier = reference_classifier
+        self.reference_vectorizer = reference_vectorizer
+        self.unknown_vectorizer = unknown_vectorizer
 
         self.class2id = None
 
@@ -51,7 +54,7 @@ class ProductMatchingModel:
         all_prods = refs_out + refs_in + prods
 
         corpus = preprocess.products2corpus(all_prods)
-        x = self.vectorizer.transform(corpus).toarray()
+        x = self.unknown_vectorizer.transform(corpus).toarray()
         y = preprocess.build_unknowns_target(all_prods, refs_out)
 
         predictor.fit(x, y)
@@ -74,7 +77,8 @@ class ProductMatchingModel:
         all_products = list(filter(lambda p: p.reference_id is not None or p.is_reference, all_products))
 
         corpus = preprocess.products2corpus(all_products)
-        x = self.vectorizer.fit_transform(corpus).toarray()
+        x = self.reference_vectorizer.fit_transform(corpus).toarray()
+        self.unknown_vectorizer.fit(corpus)
         y_ref = preprocess.build_reference_target(refs, all_products)
 
         self.reference_classifier.fit(x, y_ref)
@@ -84,15 +88,17 @@ class ProductMatchingModel:
         assert self.class2id is not None
 
         corpus = preprocess.products2corpus(products)
-        x = self.vectorizer.transform(corpus).toarray()
+        x_unk = self.unknown_vectorizer.transform(corpus).toarray()
 
-        not_in_first_half = self.unknown_classifier_1.predict(x)
-        not_in_second_half = self.unknown_classifier_2.predict(x)
+        not_in_first_half = self.unknown_classifier_1.predict(x_unk)
+        not_in_second_half = self.unknown_classifier_2.predict(x_unk)
 
         unknowns = np.multiply(not_in_first_half, not_in_second_half)
 
         known_indices = np.nonzero(unknowns == 0)[0]  # like np.zero
-        known_x = x[known_indices]
+
+        x_ref = self.reference_vectorizer.transform(corpus).toarray()
+        known_x = x_ref[known_indices]
 
         result = [None] * len(products)
 
