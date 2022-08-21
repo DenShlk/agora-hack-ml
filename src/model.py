@@ -38,7 +38,6 @@ class ProductMatchingModel:
         self.reference_classifier = reference_classifier
 
         self.class2id = None
-        self.class2vector = None
 
     def _fit_unknown_classifier(self, predictor: ScikitClassifier, refs_in: [Product], refs_out: [Product],
                                 prods: [Product]):
@@ -62,8 +61,6 @@ class ProductMatchingModel:
 
         self._fit_reference_classifier(refs, all_products)
 
-        self.class2vector = self.vectorizer.transform([p.name for p in refs])
-
         refs_half_1, refs_half_2 = train_test_split(refs, test_size=0.5, random_state=42)
         self._fit_unknown_classifier(self.unknown_classifier_1, refs_half_1, refs_half_2, prods)
         self._fit_unknown_classifier(self.unknown_classifier_2, refs_half_2, refs_half_1, prods)
@@ -82,19 +79,19 @@ class ProductMatchingModel:
 
         self.reference_classifier.fit(x, y_ref)
 
-    def predict(self, products: [Product], threshold):
+    def predict(self, products: [Product]):
         products = deepcopy(products)
         assert self.class2id is not None
 
         corpus = preprocess.products2corpus(products)
         x = self.vectorizer.transform(corpus).toarray()
 
-        not_in_first_half = np.zeros((len(products),))  # self.unknown_classifier_1.predict(x)
-        not_in_second_half = np.zeros((len(products),))  # self.unknown_classifier_2.predict(x)
+        not_in_first_half = self.unknown_classifier_1.predict(x)
+        not_in_second_half = self.unknown_classifier_2.predict(x)
 
         unknowns = np.multiply(not_in_first_half, not_in_second_half)
 
-        known_indices = np.nonzero(unknowns == 0)[0]
+        known_indices = np.nonzero(unknowns == 0)[0]  # like np.zero
         known_x = x[known_indices]
 
         result = [None] * len(products)
@@ -102,12 +99,9 @@ class ProductMatchingModel:
         if known_x.size:
             y = self.reference_classifier.predict(known_x)
             y_ids = [self.class2id[c] for c in y]
-            y_vectors = [self.class2vector[c] for c in y]
 
-            for idx, predicted_id, ref_v in zip(known_indices, y_ids, y_vectors):
-                intersection = np.count_nonzero(x[idx] - ref_v)
-                if intersection > threshold:
-                    result[idx] = predicted_id
+            for idx, predicted_id in zip(known_indices, y_ids):
+                result[idx] = predicted_id
 
         return result
 
