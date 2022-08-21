@@ -1,5 +1,14 @@
 [
   {
+    "name": "Планшет с клавиатурой IRBIS TW86X, черный",
+    "props": [
+      "Встроенная память32 ГБ\nЦвет товарачерный\nРазрешение экрана1280x800\nПроцессорIntel Atom Z3735F\n"
+    ],
+    "reference_id": null,
+    "product_id": "",
+    "is_reference": false
+  },
+  {
     "product_id": "3605e12b229373d6",
     "name": "Роутер TP-LINK TL-WR842N",
     "props": [

@@ -1,6 +1,7 @@
 import pickle
 from copy import deepcopy
 
+import numpy
 import numpy as np
 import numpy.typing as npt
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -29,14 +30,15 @@ class ProductMatchingModel:
                  reference_classifier: ScikitClassifier = RidgeClassifier(alpha=0.4),
                  unknown_classifier_1: ScikitClassifier = RidgeClassifier(alpha=0.1),
                  unknown_classifier_2: ScikitClassifier = RidgeClassifier(alpha=0.1),
-                 vectorizer: CountVectorizer = TfidfVectorizer(stop_words=STOP_WORDS),
-                 class2id: [str] = None):
+                 vectorizer: CountVectorizer = TfidfVectorizer(stop_words=STOP_WORDS)):
 
         self.unknown_classifier_1 = unknown_classifier_1
         self.unknown_classifier_2 = unknown_classifier_2
         self.vectorizer = vectorizer
-        self.class2id = class2id
         self.reference_classifier = reference_classifier
+
+        self.class2id = None
+        self.class2vector = None
 
     def _fit_unknown_classifier(self, predictor: ScikitClassifier, refs_in: [Product], refs_out: [Product],
                                 prods: [Product]):
@@ -60,6 +62,8 @@ class ProductMatchingModel:
 
         self._fit_reference_classifier(refs, all_products)
 
+        self.class2vector = self.vectorizer.transform([p.name for p in refs])
+
         refs_half_1, refs_half_2 = train_test_split(refs, test_size=0.5, random_state=42)
         self._fit_unknown_classifier(self.unknown_classifier_1, refs_half_1, refs_half_2, prods)
         self._fit_unknown_classifier(self.unknown_classifier_2, refs_half_2, refs_half_1, prods)
@@ -78,16 +82,15 @@ class ProductMatchingModel:
 
         self.reference_classifier.fit(x, y_ref)
 
-    def predict(self, products: [Product]):
+    def predict(self, products: [Product], threshold):
         products = deepcopy(products)
         assert self.class2id is not None
 
         corpus = preprocess.products2corpus(products)
         x = self.vectorizer.transform(corpus).toarray()
 
-        # self.reference_classifier.classes_[np.argmax(d, axis=-1)]
-        not_in_first_half = self.unknown_classifier_1.predict(x)
-        not_in_second_half = self.unknown_classifier_2.predict(x)
+        not_in_first_half = np.zeros((len(products),))  # self.unknown_classifier_1.predict(x)
+        not_in_second_half = np.zeros((len(products),))  # self.unknown_classifier_2.predict(x)
 
         unknowns = np.multiply(not_in_first_half, not_in_second_half)
 
@@ -99,9 +102,12 @@ class ProductMatchingModel:
         if known_x.size:
             y = self.reference_classifier.predict(known_x)
             y_ids = [self.class2id[c] for c in y]
+            y_vectors = [self.class2vector[c] for c in y]
 
-            for idx, predicted_id in zip(known_indices, y_ids):
-                result[idx] = predicted_id
+            for idx, predicted_id, ref_v in zip(known_indices, y_ids, y_vectors):
+                intersection = np.count_nonzero(x[idx] - ref_v)
+                if intersection > threshold:
+                    result[idx] = predicted_id
 
         return result
 
