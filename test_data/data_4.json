@@ -1,0 +1,64 @@
+[
+  {
+    "product_id": "3605e12b229373d6",
+    "name": "Роутер TP-LINK TL-WR842N",
+    "props": [
+      "Количество  LAN-портов 4",
+      "Подключение  к интернету (WAN) внешний модем, Ethernet RJ-45"
+    ],
+    "is_reference": false,
+    "reference_id": "2b0ab54004b858af"
+  },
+  {
+    "product_id": "2b0ab54004b858af",
+    "name": "Wi-Fi роутер TP-LINK TL-WR842N",
+    "props": [
+      "Скорость портов\t100 Мбит/с",
+      "Количество LAN-портов 4",
+      "Функции и особенности поддержка IPv6, режим моста, WDS, UPnP AV-сервер",
+      "Частотный  диапазон устройств Wi-Fi\t2.4 ГГц",
+      "Макс.  скорость беспроводного соединения 300 Мбит/с",
+      "Поддержка  USB-модема",
+      "Подключение   к интернету (WAN) внешний модем, Ethernet RJ-45",
+      "Стандарт  Wi-Fi 802.11 b (Wi-Fi 1), g (Wi-Fi 3), n (Wi-Fi 4), a (Wi-Fi 2)"
+    ],
+    "is_reference": true,
+    "reference_id": null
+  },
+  {
+    "name": "Wi-Fi роутер TP-Link TL-WR842N белый",
+    "props": [
+      "Производитель:TP-LINK\nТип устройства:роутер\nЧастотный диапазон устройств Wi-Fi:2.4 ГГц\nПодключение к интернету (WAN):Ethernet RJ-45, внешний модем\nСкорость портов:100 Мбит/с\nСтандарт Wi-Fi 802.11:a (Wi-Fi 2), b (Wi-Fi 1), g (Wi-Fi 3), n (Wi-Fi 4)\n"
+    ],
+    "reference_id": null,
+    "product_id": "",
+    "is_reference": false
+  },
+  {
+    "name": "Маршрутизатор TP-LINK TL-WR842N v 5.0",
+    "props": [
+      "Производитель:TP-LINK\nТип устройства:роутер\nЧастотный диапазон устройств Wi-Fi:2.4 ГГц\nПодключение к интернету (WAN):Ethernet RJ-45, внешний модем\nСкорость портов:100 Мбит/с\nСтандарт Wi-Fi 802.11:a (Wi-Fi 2), b (Wi-Fi 1), g (Wi-Fi 3), n (Wi-Fi 4)\n"
+    ],
+    "reference_id": null,
+    "product_id": "",
+    "is_reference": false
+  },
+  {
+    "name": "Микроволновая печь Samsung ME88SUW/BW, 800Вт, 23л, белый",
+    "props": [
+      "Объем\t23 л\nМощность микроволн\t800 Вт\n"
+    ],
+    "reference_id": null,
+    "product_id": "",
+    "is_reference": false
+  },
+  {
+    "name": "Микроволновая печь NATIONAL NK-MW362S20, серебристый",
+    "props": [
+      "Объем\t20 л\nМощность микроволн\t700 Вт\nВнутреннее покрытие камеры\tэмаль\nДиаметр поддона\t255 мм\nПереключатели\tсенсорные\n"
+    ],
+    "reference_id": null,
+    "product_id": "",
+    "is_reference": false
+  }
+]

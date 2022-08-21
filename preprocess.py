@@ -1,7 +1,7 @@
+from typing import List, Tuple
+
 import numpy as np
 import numpy.typing as npt
-from sklearn.feature_extraction.text import CountVectorizer
-from typing import List, Tuple
 
 from product import Product
 

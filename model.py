@@ -1,3 +1,4 @@
+import pickle
 from copy import deepcopy
 
 import numpy as np
@@ -26,12 +27,10 @@ class ProductMatchingModel:
                  unknown_classifier_1: ScikitClassifier,
                  unknown_classifier_2: ScikitClassifier,
                  vectorizer: CountVectorizer,
-                 threshold: float = 0.1,
                  class2id: [str] = None):
 
         self.unknown_classifier_1 = unknown_classifier_1
         self.unknown_classifier_2 = unknown_classifier_2
-        self.threshold = threshold
         self.vectorizer = vectorizer
         self.class2id = class2id
         self.reference_classifier = reference_classifier
@@ -83,6 +82,7 @@ class ProductMatchingModel:
         corpus = preprocess.products2corpus(products)
         x = self.vectorizer.transform(corpus).toarray()
 
+        # self.reference_classifier.classes_[np.argmax(d, axis=-1)]
         not_in_first_half = self.unknown_classifier_1.predict(x)
         not_in_second_half = self.unknown_classifier_2.predict(x)
 
@@ -93,10 +93,20 @@ class ProductMatchingModel:
 
         result = [None] * len(products)
 
-        y = self.reference_classifier.predict(known_x)
-        y_ids = [self.class2id[c] for c in y]
+        if known_x.size:
+            y = self.reference_classifier.predict(known_x)
+            y_ids = [self.class2id[c] for c in y]
 
-        for idx, predicted_id in zip(known_indices, y_ids):
-            result[idx] = predicted_id
+            for idx, predicted_id in zip(known_indices, y_ids):
+                result[idx] = predicted_id
 
         return result
+
+    def dump(self, path: str):
+        with open(path, 'wb') as storage_file:
+            pickle.dump(self, storage_file)
+
+    @staticmethod
+    def load(path: str):
+        with open(path, 'rb') as storage_file:
+            return pickle.load(storage_file)
