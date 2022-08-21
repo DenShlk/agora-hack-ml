@@ -3,12 +3,15 @@ from copy import deepcopy
 
 import numpy as np
 import numpy.typing as npt
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import train_test_split
 
 from product import Product
 import preprocess
 from typing import Protocol
+
+from stop_words import STOP_WORDS
 
 
 class ScikitClassifier(Protocol):
@@ -23,10 +26,10 @@ class ScikitClassifier(Protocol):
 
 class ProductMatchingModel:
     def __init__(self,
-                 reference_classifier: ScikitClassifier,
-                 unknown_classifier_1: ScikitClassifier,
-                 unknown_classifier_2: ScikitClassifier,
-                 vectorizer: CountVectorizer,
+                 reference_classifier: ScikitClassifier = RidgeClassifier(alpha=0.4),
+                 unknown_classifier_1: ScikitClassifier = RidgeClassifier(alpha=0.1),
+                 unknown_classifier_2: ScikitClassifier = RidgeClassifier(alpha=0.1),
+                 vectorizer: CountVectorizer = TfidfVectorizer(stop_words=STOP_WORDS),
                  class2id: [str] = None):
 
         self.unknown_classifier_1 = unknown_classifier_1
