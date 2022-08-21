@@ -6,12 +6,12 @@ import numpy.typing as npt
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import train_test_split
-
-from product import Product
-import preprocess
 from typing import Protocol
 
-from stop_words import STOP_WORDS
+from .product import Product
+from . import preprocess
+
+from .stop_words import STOP_WORDS
 
 
 class ScikitClassifier(Protocol):

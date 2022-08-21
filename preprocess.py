@@ -3,7 +3,7 @@ from typing import List, Tuple
 import numpy as np
 import numpy.typing as npt
 
-from product import Product
+from .product import Product
 
 
 def separate_references(products: List[Product]) -> Tuple[List[Product], List[Product]]:

@@ -1,1 +1,1 @@
-from model import ProductMatchingModel as Model
+from .model import ProductMatchingModel as Model
